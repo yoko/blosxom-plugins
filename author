@@ -1,0 +1,52 @@
+# Blosxom Plugin: author
+# Author(s): yksk <yoko@carbonfairy.org>
+# Version: 2009-05-27
+
+package author;
+use strict;
+use warnings;
+use vars qw/$author/;
+
+# --- Configurable variables -----------
+
+my $meta_prefix = 'meta-';
+
+# --- Plug-in package variables --------
+
+$author = "";
+
+# --------------------------------------
+
+use CGI qw/param/;
+
+sub start {
+	$author = param("author");
+
+	!!$author;
+}
+
+sub filter {
+	my ($pkg, $files_ref) = @_;
+
+	foreach my $f (keys %$files_ref) {
+		open IN, $f;
+		my @lines = <IN>;
+		close IN;
+
+		my $m = 0;
+		foreach my $line (@lines) {
+			next if $line =~ /^\s*$/;
+			my ($key, $value) = $line =~ /^$meta_prefix(.+?):\s*(.+)$/;
+			if ($key eq "author") {
+				$m = 1;
+				delete $files_ref->{$f} unless $value =~ /$author/i;
+				last;
+			}
+		}
+		delete $files_ref->{$f} unless $m;
+	}
+
+	1;
+}
+
+1;
