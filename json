@@ -4,7 +4,6 @@
 # Blosxom Home/Docs/Licensing: http://www.blosxom.com/
 
 package json;
-use lib '/home/carbonfairy/blosxom/lib';
 use strict;
 use warnings;
 use vars qw/$content/;
