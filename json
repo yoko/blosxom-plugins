@@ -1,0 +1,91 @@
+# Blosxom Plugin: json
+# Author(s): yksk <yoko@carbonfairy.org>
+# Version: 2009-05-28
+# Blosxom Home/Docs/Licensing: http://www.blosxom.com/
+
+package json;
+use lib '/home/carbonfairy/blosxom/lib';
+use strict;
+use warnings;
+use vars qw/$content/;
+
+# --- Configurable variables -----------
+
+my $name  = "yksk";
+my $email = "yoko\@carbonfairy.org";
+my $url   = "http://carbnfairy.org/";
+
+my $entry_ext = "html";
+
+# --- Plug-in package variables --------
+
+$content = {};
+my $created_at;
+
+# --------------------------------------
+
+use JSON;
+use CGI qw/param/;
+
+sub start {
+	!!($blosxom::flavour eq "json");
+}
+
+sub head {
+	$content->{"head"} = {
+		title       => $blosxom::blog_title,
+		description => $blosxom::blog_description,
+		link        => "$blosxom::url/",
+		author      => {
+			name  => $name,
+			email => $email,
+			url   => $url,
+		},
+	};
+	$content->{"body"} = [];
+	1;	
+}
+
+sub date {
+	my($pkg, $path, $date_ref, $mtime, $dw, $mo, $mo_num, $da, $ti, $yr) = @_;
+	$created_at = $mtime + 0; # as int for json format
+	1;
+}
+
+sub story {
+	my($pkg, $path, $fn, $story_ref, $title_ref, $body_ref) = @_;
+
+	push(@{$content->{"body"}}, {
+		link       => "$blosxom::url$path/$fn.$entry_ext",
+		title      => trim($$title_ref),
+		content    => trim($$body_ref),
+		created_at => $created_at,
+	});
+	1;
+}
+
+sub foot {
+	$content->{"head"}->{"created_at"} = $content->{"body"}[0]->{"created_at"};
+	$content = to_json($content);
+	if (my $callback = param("callback")) {
+		$content = jsonp($content, $callback);
+	}
+	1;
+}
+
+sub jsonp {
+	my($content, $callback) = @_;
+
+	# JavaScript method?
+	return $content unless $callback =~ /^[a-zA-Z_\$][0-9a-zA-Z_.\$]*$/;
+
+	"$callback($content)";
+}
+
+sub trim {
+	my $str = shift;
+	$str =~ s/^\s+|\s+$//;
+	$str;
+}
+
+1;
