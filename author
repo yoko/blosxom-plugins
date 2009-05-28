@@ -34,9 +34,9 @@ sub filter {
 		while (<IN>) {
 			$content .= $_;
 		}
-		# my @lines = <IN>;
 		close IN;
-		my @lines = split("\n", split("\n\n", $content)[0]);
+		my @c = split(/\n{2}/, $content);
+		my @lines = split(/\n/, $c[0]);
 
 		foreach my $line (@lines) {
 			next if $line =~ /^\s*$/;
