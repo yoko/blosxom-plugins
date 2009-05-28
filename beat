@@ -1,6 +1,7 @@
 # Blosxom Plugin: beat
 # Author(s): yksk <yoko@carbonfairy.org>
 # Version: 2009-05-27
+# Blosxom Home/Docs/Licensing: http://www.blosxom.com/
 
 package beat;
 use strict;

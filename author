@@ -1,6 +1,7 @@
 # Blosxom Plugin: author
 # Author(s): yksk <yoko@carbonfairy.org>
-# Version: 2009-05-27
+# Version: 2009-05-28
+# Blosxom Home/Docs/Licensing: http://www.blosxom.com/
 
 package author;
 use strict;
@@ -12,8 +13,6 @@ use vars qw/$author/;
 my $meta_prefix = 'meta-';
 
 # --- Plug-in package variables --------
-
-$author = "";
 
 # --------------------------------------
 
@@ -28,23 +27,22 @@ sub start {
 sub filter {
 	my ($pkg, $files_ref) = @_;
 
+	my $ret = {};
 	foreach my $f (keys %$files_ref) {
 		open IN, $f;
 		my @lines = <IN>;
 		close IN;
 
-		my $m = 0;
 		foreach my $line (@lines) {
 			next if $line =~ /^\s*$/;
 			my ($key, $value) = $line =~ /^$meta_prefix(.+?):\s*(.+)$/;
 			if ($key eq "author") {
-				$m = 1;
-				delete $files_ref->{$f} unless $value =~ /$author/i;
+				$ret->{$f} = $files_ref->{$f} if $value =~ /$author/i;
 				last;
 			}
 		}
-		delete $files_ref->{$f} unless $m;
 	}
+	%$files_ref = %$ret;
 
 	1;
 }
