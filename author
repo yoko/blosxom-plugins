@@ -29,9 +29,14 @@ sub filter {
 
 	my $ret = {};
 	foreach my $f (keys %$files_ref) {
+		my $content = "";
 		open IN, $f;
-		my @lines = <IN>;
+		while (<IN>) {
+			$content .= $_;
+		}
+		# my @lines = <IN>;
 		close IN;
+		my @lines = split("\n", split("\n\n", $content)[0]);
 
 		foreach my $line (@lines) {
 			next if $line =~ /^\s*$/;
